@@ -3,9 +3,6 @@
       :data="orgStructure[0]"
       v-if="orgStructure.length"
       @dragStart="dragStart"
-      @dragEnd="dragEnd"
-      @dragEnter="dragEnter"
-      @dragLeave="dragLeave"
       @dropEvent="drop">
     <template #name="{item}">{{ item.name }}</template>
   </tree-chart>
@@ -32,12 +29,6 @@ const dragStart = ({ parent, data }) => {
   parentDragElm.value = parent;
 }
 
-const dragEnd = () => {
-}
-const dragEnter = () => {
-}
-const dragLeave = () => {
-}
 const drop = (dropElm) => {
   const available = !checkNestingElm(dragElm.value.children, dropElm, 'children')
   if (available) {

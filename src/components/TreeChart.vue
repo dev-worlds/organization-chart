@@ -2,16 +2,17 @@
   <table class="chart-table">
     <tbody>
     <tr>
-      <td :colspan="data.children?.length * 2">
+      <td :colspan="(data.children?.length * 2) || ''">
         <div
             class="chart-node-content"
             draggable="true"
             @dragstart="emits('dragStart', {data, parent})"
-            @dragend="emits('dragEnd', data)"
-            @dragover="dragOver"
-            @dragenter="emits('dragEnter', data)"
-            @dragleave="emits('dragLeave', data)"
+            @dragover.prevent
+            @dragenter.prevent
             @drop="emits('dropEvent', data)"
+            @touchend="onTouchEnd"
+            @touchstart="emits('dragStart', {data, parent})"
+            ref="treeItem"
         >
           <slot name="name" :item="data"></slot>
         </div>
@@ -49,10 +50,6 @@
         <tree-chart
             :data="child"
             @dragStart="emits('dragStart', $event)"
-            @dragEnd="emits('dragEnd', $event)"
-            @dragOver="emits('dragOver', $event)"
-            @dragEnter="emits('dragEnter', $event)"
-            @dragLeave="emits('dragLeave', $event)"
             @dropEvent="emits('dropEvent', $event)"
             :parent="data"
         >
@@ -66,9 +63,13 @@
 
 <script setup>
 import TreeChart from "@/components/TreeChart.vue";
+import {onMounted, ref} from "vue";
 
-const emits = defineEmits(['dragStart', 'dragEnd', 'dragOver', 'dragEnter', 'dragLeave', 'dropEvent'])
-;
+onMounted(() => {
+  treeItem.value.tree = props.data
+})
+
+const emits = defineEmits(['dragStart', 'dragEnd', 'dragOver', 'dragEnter', 'dragLeave', 'dropEvent']);
 const props = defineProps({
   data: {
     type: Object,
@@ -80,9 +81,12 @@ const props = defineProps({
     default: null
   }
 })
+const treeItem = ref(null);
 
-const dragOver = (e) => {
-  e.preventDefault()
+const onTouchEnd = (e) => {
+  const touch = e.changedTouches[0]
+  const dropElm = document.elementFromPoint(touch.clientX, touch.clientY);
+  emits('dropEvent', dropElm.tree)
 }
 </script>
 
