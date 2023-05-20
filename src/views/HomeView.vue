@@ -4,7 +4,7 @@
       v-if="orgStructure.length"
       @dragStart="dragStart"
       @dropEvent="drop"
-      :deep="0"
+      :deep="1"
   >
     <template #name="{item}">{{ item.name }}</template>
   </tree-chart>
