@@ -112,7 +112,6 @@ const dragOver = (e) => {
     display: inline-block;
     position: relative;
     cursor: pointer;
-    user-select: none;
 
     &:active {
       cursor: grabbing;
