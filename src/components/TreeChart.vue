@@ -1,19 +1,20 @@
 <template>
-  <table class="chart-table" ref="tableItem">
+  <table class="chart-table"
+         draggable="true"
+         @dragstart.stop="emits('dragStart', {data, parent})"
+         @dragover.stop.prevent
+         @dragenter.stop.prevent
+         @drop.stop="emits('dropEvent', data)"
+         @touchend.stop="onTouchEnd"
+         @touchstart.stop="emits('dragStart', { data, parent })"
+         @touchmove.stop="onTouchMove"
+         ref="treeItem"
+  >
     <tbody>
     <tr>
       <td :colspan="(data.children?.length * 2) || ''">
         <div
             class="chart-node-content"
-            draggable="true"
-            @dragstart="emits('dragStart', {data, parent})"
-            @dragover.prevent
-            @dragenter.prevent
-            @drop="emits('dropEvent', data)"
-            @touchend="onTouchEnd"
-            @touchstart="emits('dragStart', { data, parent })"
-            @touchmove="onTouchMove"
-            ref="treeItem"
         >
           <slot name="name" :item="data"></slot>
         </div>
@@ -89,20 +90,14 @@ const props = defineProps({
   }
 })
 const treeItem = ref(null);
-const tableItem = ref(null);
 const cloak = ref(null);
 
 const onTouchEnd = (e) => {
   const touch = e.changedTouches[0]
-  tableItem.value.style.zIndex = '-1';
+  treeItem.value.style.zIndex = '-1';
   const dropElm = document.elementFromPoint(touch.clientX, touch.clientY);
-  tableItem.value.style.position = '';
-  cloak.value.style.position = 'absolute';
-  cloak.value.style.width = '';
-  cloak.value.style.height = '';
-  tableItem.value.style.top = '';
-  tableItem.value.style.left = '';
-  tableItem.value.style.zIndex = '';
+  cloakClearProperty()
+  dragItemClearProperty()
   if (dropElm.tree) {
     emits('dropEvent', dropElm.tree)
   }
@@ -110,12 +105,31 @@ const onTouchEnd = (e) => {
 
 const onTouchMove = (e) => {
   const touch = e.changedTouches[0]
-  cloak.value.style.width = tableItem.value.offsetWidth + 'px';
-  cloak.value.style.height = tableItem.value.offsetHeight + 'px';
+  cloakCopyProperty(treeItem.value)
+  dragItemSetProperty(touch)
+}
+const dragItemClearProperty = () => {
+  treeItem.value.style.position = '';
+  treeItem.value.style.top = '';
+  treeItem.value.style.left = '';
+  treeItem.value.style.zIndex = '';
+}
+const dragItemSetProperty = ({ clientY, clientX }) => {
+  treeItem.value.style.position = 'fixed';
+  treeItem.value.style.top = clientY - 20 + 'px';
+  treeItem.value.style.left = clientX - Math.round(treeItem.value.offsetWidth / 2) + 'px';
+}
+
+const cloakCopyProperty = (item) => {
+  cloak.value.style.width = item.offsetWidth + 'px';
+  cloak.value.style.height = item.offsetHeight + 'px';
   cloak.value.style.position = 'static';
-  tableItem.value.style.position = 'fixed';
-  tableItem.value.style.top = touch.clientY - 20 + 'px';
-  tableItem.value.style.left = touch.clientX - Math.round(tableItem.value.offsetWidth / 2) + 'px';
+}
+
+const cloakClearProperty = () => {
+  cloak.value.style.position = 'absolute';
+  cloak.value.style.width = '';
+  cloak.value.style.height = '';
 }
 
 </script>

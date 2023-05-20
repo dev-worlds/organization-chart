@@ -15,6 +15,7 @@ export function generateUuidForArray(arr, childName = 'children') {
 
 export function checkNestingElm(arr, elm, nesting = 'children') {
     if (!arr) return false;
+    if (!elm) return false
     return arr.some(child => {
         if (child === elm) return true;
         if (nesting in child) {
