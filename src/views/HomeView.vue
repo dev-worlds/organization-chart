@@ -3,7 +3,9 @@
       :data="orgStructure[0]"
       v-if="orgStructure.length"
       @dragStart="dragStart"
-      @dropEvent="drop">
+      @dropEvent="drop"
+      :deep="0"
+  >
     <template #name="{item}">{{ item.name }}</template>
   </tree-chart>
   <Loader v-else/>

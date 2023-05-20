@@ -1,5 +1,5 @@
 <template>
-  <table class="chart-table">
+  <table class="chart-table" ref="tableItem">
     <tbody>
     <tr>
       <td :colspan="(data.children?.length * 2) || ''">
@@ -11,7 +11,8 @@
             @dragenter.prevent
             @drop="emits('dropEvent', data)"
             @touchend="onTouchEnd"
-            @touchstart="emits('dragStart', {data, parent})"
+            @touchstart="emits('dragStart', { data, parent })"
+            @touchmove="onTouchMove"
             ref="treeItem"
         >
           <slot name="name" :item="data"></slot>
@@ -48,10 +49,12 @@
     <tr class="chart-nodes" v-if="data.children?.length">
       <td v-for="child in data.children" colspan="2">
         <tree-chart
+            :key="child.id"
             :data="child"
             @dragStart="emits('dragStart', $event)"
             @dropEvent="emits('dropEvent', $event)"
             :parent="data"
+            :deep="deep + 1"
         >
           <template #name="{item}">{{ item.name }}</template>
         </tree-chart>
@@ -59,6 +62,7 @@
     </tr>
     </tbody>
   </table>
+  <div class="cloak" ref="cloak"></div>
 </template>
 
 <script setup>
@@ -73,24 +77,56 @@ const emits = defineEmits(['dragStart', 'dragEnd', 'dragOver', 'dragEnter', 'dra
 const props = defineProps({
   data: {
     type: Object,
-    default: () => {
-    }
+    default: () => ({})
   },
   parent: {
     type: Object,
     default: null
+  },
+  deep: {
+    type: Number,
+    default: 0
   }
 })
 const treeItem = ref(null);
+const tableItem = ref(null);
+const cloak = ref(null);
 
 const onTouchEnd = (e) => {
   const touch = e.changedTouches[0]
+  tableItem.value.style.zIndex = '-1';
   const dropElm = document.elementFromPoint(touch.clientX, touch.clientY);
-  emits('dropEvent', dropElm.tree)
+  tableItem.value.style.position = '';
+  cloak.value.style.position = 'absolute';
+  cloak.value.style.width = '';
+  cloak.value.style.height = '';
+  tableItem.value.style.top = '';
+  tableItem.value.style.left = '';
+  tableItem.value.style.zIndex = '';
+  if (dropElm.tree) {
+    emits('dropEvent', dropElm.tree)
+  }
 }
+
+const onTouchMove = (e) => {
+  const touch = e.changedTouches[0]
+  cloak.value.style.width = tableItem.value.offsetWidth + 'px';
+  cloak.value.style.height = tableItem.value.offsetHeight + 'px';
+  cloak.value.style.position = 'static';
+  tableItem.value.style.position = 'fixed';
+  tableItem.value.style.top = touch.clientY - 20 + 'px';
+  tableItem.value.style.left = touch.clientX - Math.round(tableItem.value.offsetWidth / 2) + 'px';
+}
+
 </script>
 
 <style lang="scss">
+.cloak {
+  position: absolute;
+  z-index: -1;
+  visibility: hidden;
+}
+
 .chart {
   &-table {
     border-spacing: 0;

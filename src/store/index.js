@@ -1,5 +1,6 @@
 import {createStore} from 'vuex'
 import {orgStructure} from '@/js/data'
+import {generateUuidForArray} from "@/js/utils";
 
 export default createStore({
     state: {
@@ -29,6 +30,7 @@ export default createStore({
     actions: {
         loadTreeStructure({ commit }) {
             setTimeout(() => {
+                generateUuidForArray(orgStructure)
                 commit('addOrgStructure', orgStructure)
             }, 3000)
         }
