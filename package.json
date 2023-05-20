@@ -1,13 +1,17 @@
 {
-  "name": "vue-tree",
+  "name": "organization-chart",
   "version": "0.1.0",
+  "homepage": "https://dev-worlds.github.io/organization-chart/",
   "private": true,
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"
   },
   "dependencies": {
     "core-js": "^3.8.3",
+    "gh-pages": "^5.0.0",
     "register-service-worker": "^1.7.2",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
